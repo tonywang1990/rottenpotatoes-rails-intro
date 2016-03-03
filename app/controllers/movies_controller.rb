@@ -12,19 +12,30 @@ class MoviesController < ApplicationController
 
   def index
     @all_ratings = Movie.all_ratings
+    # if any rating is selected
     if params[:ratings]
-	    @selected_rating = params[:ratings].keys 
-    else 
-	    @selected_rating = @all_ratings
+      @selected_rating = params[:ratings].keys 
+	    session[:ratings] = @selected_rating
+	    
+	  # if no rating is selected but has history
+    elsif session[:ratings]
+      @selected_rating = session[:ratings]
+      
+    # first time  
+    else
+      @selected_rating = @all_ratings
     end
-    if params[:sort] == "title"
+    sort = params[:sort] || session[:sort]
+    if sort == "title"
 	    @title_class = "hilite"
 	    @movies = Movie.filter(@selected_rating).order("title")
-    elsif params[:sort] == "release"
-    	@release_class = "hilite"
-    	@movies = Movie.filter(@selected_rating).order("release_date")
-    else 
-  	@movies = Movie.filter(@selected_rating)
+	    session[:sort] = "title"
+    elsif sort == "release"
+	    @release_class = "hilite"
+	    @movies = Movie.filter(@selected_rating).order("release_date")
+	    session[:sort] = "release"
+    else
+	    @movies = Movie.filter(@selected_rating)
     end
   end
 
